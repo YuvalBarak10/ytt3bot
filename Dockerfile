@@ -1,29 +1,25 @@
-FROM golang:latest
+FROM python:3-alpine
 
-WORKDIR /go/src/github.com/kfur/YtbDownBot
-COPY . .
-
-RUN go build
-
-
-FROM ubuntu:19.04
-
-EXPOSE 80
+EXPOSE 8080
 
 WORKDIR /root/YtbDownBot
-COPY --from=0 /go/src/github.com/kfur/YtbDownBot/YtbDownBot .
-COPY --from=0 /go/src/github.com/kfur/YtbDownBot/start.sh .
-COPY --from=0 /go/src/github.com/kfur/YtbDownBot/main.py .
-COPY --from=0 /go/src/github.com/kfur/YtbDownBot/requirements.txt .
 
-ADD youtubedl-autoupdate /etc/cron.daily/youtubedl 
+COPY src ./
+COPY requirements.txt ./
+COPY start.sh ./
 
-RUN apt update && \
-    apt install -y mediainfo jq python3 python3-pip git ffmpeg cron && \
-    pip3 install -r requirements.txt  && \
-    chmod +x /etc/cron.daily/youtubedl && \
+ADD youtubedl-autoupdate /etc/periodic/hourly/youtubedl
+
+ENV LIBRARY_PATH=/lib:/usr/lib
+
+RUN apk update && \
+    apk add --no-cache curl ffmpeg && \
+    apk add --no-cache --virtual .build-deps git gcc musl-dev libffi-dev build-base python-dev jpeg-dev zlib-dev && \
+    pip3 install --no-cache-dir -r requirements.txt  && \
+    apk del .build-deps && \
+    chmod +x ./start.sh && \
+    chmod +x /etc/periodic/hourly/youtubedl && \
     touch /var/log/cron.log && \
-    apt-get autoremove -y && apt-get clean && apt-get autoclean
+    rm -rf /var/cache/apk/*
 
 CMD ["./start.sh"]
-
