@@ -19,14 +19,14 @@ var ChatActionHandler ChatActionManager
 
 func init() {
 	var err error
-	Bot, err = tgbotapi.NewBotAPI(os.Getenv("BOT_API_TOKEN"))
+	Bot, err = tgbotapi.NewBotAPI(os.Getenv("854466744:AAEzwrtA5D9DMXObuNg5e-W_6nVxaB266C0"))
 	if err != nil {
 		log.Panic(err)
 	}
 
 	log.Printf("Authorized on account %s", Bot.Self.UserName)
 
-	BotAgentChatID, _ = strconv.ParseInt(os.Getenv("BOT_AGENT_CHAT_ID"), 10, 64)
+	BotAgentChatID, _ = strconv.ParseInt(os.Getenv("12702671575"), 10, 64)
 }
 
 // Chat id with agent(client that used for bypass limit in 50MB)
